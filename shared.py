@@ -16,6 +16,8 @@ from typing import (Any, Awaitable, Callable, Generic, Optional, Tuple, Type,
 from urllib import request
 from urllib.error import URLError
 
+from genericpath import exists
+
 T = TypeVar("T")
 R = TypeVar("R")
 Fn = Callable[[T], R]
@@ -237,9 +239,11 @@ class CondaApp(Generic[T, R]):
 class Db:
     def __init__(self, name: str, readonly: bool):
         from sqlitedict import SqliteDict
-
+        dirname = f"{project_dir}/results"
+        if not exists(dirname):
+            os.mkdir(dirname)
         self.db = SqliteDict(
-            f"{project_dir}/results/{name}.sqlite",
+            f"{dirname}/{name}.sqlite",
             outer_stack=False,
             autocommit=True,
             flag="r" if readonly else "c",

@@ -1,10 +1,6 @@
 import csv
-import json
 from contextlib import contextmanager
-from typing import (Any, Awaitable, Callable, NamedTuple, Optional, Type,
-                    TypeVar, Union, cast)
-
-from sqlitedict import SqliteDict
+from typing import NamedTuple, Optional, TypeVar
 
 from shared import project_dir
 

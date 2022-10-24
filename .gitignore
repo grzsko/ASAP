@@ -1,8 +1,9 @@
+.vscode
+*.bak
+data
 *.pyc
 */*.pyc
-data/*
 data.tgz
-opt-aizynthfinder
 stats_detailed.ipynb
 results/dummy_scorings.txt
 results/trees_v3.json

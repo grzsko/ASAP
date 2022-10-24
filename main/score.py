@@ -1,16 +1,11 @@
 from typing import Optional, Tuple, TypedDict
+from .types import Scoring
 
 from shared import Fn
 
 from .utils import serialize_dict
 
-
-class JsonScore(TypedDict):
-    sa: float
-    sc: float
-    ra: float
-    mf: float
-    syba: float
+JsonScore = dict[Scoring, float]
 
 
 class Score:
@@ -29,7 +24,7 @@ class Score:
         return Score(sa=j["sa"], sc=j["sc"], ra=j["ra"], syba=j["syba"], mf=j["mf"])
 
     @staticmethod
-    def getters() -> list[Tuple[str, Fn["Score", float]]]:
+    def getters() -> list[Tuple[Scoring, Fn["Score", float]]]:
         return [
             ("sa", lambda s: s.sa),
             ("sc", lambda s: s.sc),

@@ -5,14 +5,22 @@ from typing import (Any, Callable, Dict, List, Literal, Optional, Tuple,
 
 import numpy as np
 
-from shared import CondaApp, Timer, project_dir, serve
+from shared import CondaApp, Fn, Timer, project_dir, serve
+
+Agg = Literal["max", "min", "avg"]
+
+
+def avg(l: list[float]):
+    return sum(l) / len(l)
+
+
+aggs: dict[Agg, Fn[list[float], float]] = {"min": min, "max": max, "avg": avg}
 
 
 class Setup(TypedDict):
-    agg: Literal["max", "min"]
-    score: Literal["sa", "sc", "mf"]
+    agg: Agg
+    score: Literal["sa", "sc", "ra", "syba", "mf"]
     uw_multiplier: float
-    normalize: Tuple[float, float, bool]
 
 
 class Input(TypedDict):
@@ -115,13 +123,8 @@ class AiZynth:
         return AiZynth().tree(smiles)
 
 
-def normalize(first: float, second: float, inverted: bool, score: float):
-    left, right = (None, 1.0) if inverted else (1.0, None)
-    return left if score <= first else (0.0 if score <= second else right)
-
-
 async def main():
-    conda_app = CondaApp[Tuple[str, List[str]], List[float]](4002, "scorers", "scorers")
+    conda_app = CondaApp[Tuple[str, List[str]], List[float]](9002, "scorers", "scorers")
 
     async with conda_app as (_, fetch_sync):
         cache: Dict[Tuple[str, str], float] = {}
@@ -132,31 +135,23 @@ async def main():
             ]
             for smiles, score in zip(not_in_cache, fetch_sync((scoring, not_in_cache))):
                 cache[(scoring, smiles)] = score
-            return (cache[(scoring, smiles)] for smiles in smileses)
+            return [cache[(scoring, smiles)] for smiles in smileses]
 
         def scorer(
             expandable: List[str], fraction_in_stock: float, max_transforms_score: float
         ):
             if setup:
                 uw_mul = setup["uw_multiplier"]
-                ai_mul = 0.95 - uw_mul
-                mt_mul = 0.05
-
-                def f(normalized: float):
-                    return (
-                        uw_mul * normalized
-                        + ai_mul * fraction_in_stock
-                        + mt_mul * max_transforms_score
-                    )
-
-                if uw_mul > 0.0 and expandable:
-                    agg = {"min": min, "max": max}[setup["agg"]]
-                    first, second, inverted = setup["normalize"]
-                    scores = fetch(setup["score"], expandable)
-                    normalized = normalize(first, second, inverted, agg(scores))
-                    return 0 if normalized is None else f(normalized)
-                else:
-                    return f(0.0)
+                score = (
+                    aggs[setup["agg"]](fetch(setup["score"], expandable))
+                    if uw_mul > 0.0 and expandable
+                    else 0.0
+                )
+                return (
+                    uw_mul * score
+                    + (0.95 - uw_mul) * fraction_in_stock
+                    + 0.05 * max_transforms_score
+                )
             else:
                 raise NotImplementedError
 

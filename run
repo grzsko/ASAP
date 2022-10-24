@@ -1,26 +1,27 @@
 #!/bin/bash
 
-export CONDA_PREFIX=`which conda | xargs dirname | xargs dirname`
+CONDA_PREFIX=$(which conda | xargs dirname | xargs dirname)
+export CONDA_PREFIX
+
 py310bin="${CONDA_PREFIX}/envs/py3.10/bin"
-jupyter(){
-  "${py310bin}/jupyter-nbconvert" --theme=dark --execute --to notebook --inplace $1
-}
-module(){
-  "${py310bin}/python" -m "$@"
-}
+jupyter(){ "${py310bin}/jupyter-nbconvert" --theme=dark --execute --to notebook --inplace "$1"; }
+module(){ "${py310bin}/python" -m "$@"; }
+
 f() {
   case "$1" in
-    init)
+    pack)
+      tar cf - data | split -b 99M - data.tz.
+      ;;
+    configure)
       f git-submodules
       f create-conda-envs
-      f download-data
       f gunzip
+      cat data.tz.* | tar xf -
       ;;
     create-conda-envs)
       conda env create -f https://raw.githubusercontent.com/MolecularAI/aizynthfinder/master/env-users.yml
       conda env create -f conda_scorers.yml
       conda env create -f conda_py3.10.yml
-      conda env create -f askcos-core/environment.yml
       ;;
     main)
       shift
@@ -30,14 +31,13 @@ f() {
       module main.test
       ;;
     format)
-      ${py310bin}/black *.py **/*.py
-      ${py310bin}/isort *.py **/*.py
+      "${py310bin}/black" ./**/*.py
+      "${py310bin}/isort" ./**/*.py
       ;;
     gunzip)
       gzip -dk results/db.sqlite.gz
       ;;
     pre-commit)
-      set -o xtrace
       for NAME in db scorers; do
         if [ -f results/$NAME.sqlite ]; then
           gzip -f9k results/$NAME.sqlite
@@ -45,11 +45,11 @@ f() {
           git add results/$NAME.sqlite.gz
         fi
       done
-      for PYFILE in `git diff-index --cached --name-only HEAD | grep '.py$'`; do
+      for PYFILE in $(git diff-index --cached --name-only HEAD | grep '.py$'); do
         if [ -f "$PYFILE" ]; then
-          ${py310bin}/black $PYFILE
-          ${py310bin}/isort $PYFILE
-          git add $PYFILE
+          "${py310bin}/black" "$PYFILE"
+          "${py310bin}/isort" "$PYFILE"
+          git add "$PYFILE"
         fi
       done
       ;;
@@ -63,31 +63,6 @@ f() {
     conda)
       conda env update --name py3.10 --file conda_py3.10.yml --prune
       conda env update --name scorers --file conda_scorers.yml --prune
-      ;;
-    download-data)
-      rm -rf data
-      mkdir data
-      # ra score
-      f() {
-        wget https://github.com/reymond-group/RAscore/raw/master/RAscore/models/models.zip
-        unzip models.zip
-        rm models.zip
-        mv models data/ra_models
-      }
-      f &
-      unset f
-      # ai
-      mkdir data/ai
-      f() { wget https://figshare.com/ndownloader/files/$1 -O data/ai/$2.hdf5; }
-      # f 25584743 filter_policy_all
-      # f 25584746 filter_policy_random
-      # f 25584749 filter_policy_recommender
-      # f 25584752 filter_policy_strict
-      f 23086454 full_uspto_03_05_19_rollout_policy &
-      f 23086457 full_uspto_03_05_19_unique_templates &
-      f 23086469 zinc_stock_17_04_20 &
-      unset f
-      wait
       ;;
     clean)
       rm results/db.sqlite

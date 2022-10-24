@@ -3,50 +3,24 @@ from shared import Db
 
 from .types import AiInput, Setup
 
-other_score_multipliers = [0.15, 0.4, 0.6]  # 0.95/4 * 1, *2, *3,
-
-
-def n(first: float, second: float):
-    return (first, second, False)
-
-
 zero_setup: Setup = {
     "score": "sc",
     "uw_multiplier": 0.0,
-    "normalize": n(2.5, 4.5),
     "agg": "max",
 }
 
+# 5 * 3 * 3 + 1 = 46 setups per molecule
 ai_setups: list[Setup] = [
     zero_setup,
     *[
         {
-            "score": "sc",
-            "uw_multiplier": mul,
-            "normalize": normalize,
-            "agg": "max",
+            "score": score,
+            "uw_multiplier": uw_multiplier,
+            "agg": agg,
         }
-        for mul in other_score_multipliers
-        for normalize in [n(2.5, 4.5), n(3.0, 4.5), n(3.5, 4.5)]
-    ],
-    *[
-        {
-            "score": "sa",
-            "uw_multiplier": mul,
-            "normalize": normalize,
-            "agg": "max",
-        }
-        for mul in other_score_multipliers
-        for normalize in [n(3.0, 6.0), n(4.0, 6.0), n(5.0, 6.0)]
-    ],
-    *[
-        {
-            "score": "mf",
-            "uw_multiplier": mul,
-            "normalize": (-700.0, 0.0, True),
-            "agg": "min",
-        }
-        for mul in other_score_multipliers
+        for score in ("sa", "sc", "ra", "syba", "mf")
+        for uw_multiplier in (0.2375, 0.475, 0.7125)  # 0.95/4 * 1, *2, *3,
+        for agg in ("min", "max", "avg")
     ],
 ]
 
