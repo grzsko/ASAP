@@ -15,7 +15,7 @@ f() {
     configure)
       f git-submodules
       f create-conda-envs
-      f gunzip
+      # f gunzip
       cat data.tz.* | tar xf -
       ;;
     create-conda-envs)
