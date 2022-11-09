@@ -1,7 +1,0 @@
-{
-  "python.pythonPath": "~/miniconda3/envs/py3.10/bin/python",
-  "git.ignoredRepositories": [
-    "scorers/mf_score",
-    "scorers/scscore"
-  ]
-}
