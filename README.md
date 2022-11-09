@@ -28,8 +28,9 @@ For more details, see the `run` file.
 run main ai
 ```
 Generated trees are then deposited in the `results/db.sqlite` file as an SQLite database.
+
 2. For generated trees compute appropriate statistics:
 ```sh
 run main ai_postprocess
 ```
-3. Statistical analysis of search trees is available in notebooks: stats, stats_selected, and setups_table.
+3. Statistical analysis of search trees is available in notebooks: stats, stats_selected, and setups_table, root_scores.
