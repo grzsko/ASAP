@@ -21,4 +21,5 @@ def human_json(d: Union[dict[str, Any], TypedDict]):
 
 
 def fn_txt(fn: Callable[[Any], Any]):
-    return inspect.getsource(fn).replace("\n", "")
+    return fn.__name__
+    # return inspect.getsource(fn).replace("\n", "")

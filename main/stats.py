@@ -180,18 +180,9 @@ def scatter_pairs(
         xs, ys = _unzip(_pairs_siblings(roots, xtype, ytype))
         for agg_name, agg_color, agg_fn in agg_list:
             title = f"""
-# scatter plot of x_y_pairs
-
-tree_to_scores = {fn_txt(tree_to_scores)}
-
-for every tree in source:
-  for every node in tree:
-    for every pair (xnode, ynode) in node.children:
-      if xnode.type in {xtype} and ynode.type in {ytype}:
-        x_y_pairs.append((
-          {agg_name}(tree_to_scores(xnode)),
-          {agg_name}(tree_to_scores(ynode))
-        ))"""
+# Scatter plot of siblings nodes of types {xtype} and {ytype}.
+Node score computed as {agg_name} over {fn_txt(tree_to_scores)} molecules.
+"""
             for score_name, getter, ax in _ax6(title, bool(xs)):
 
                 def stat(t: Tree):
@@ -226,22 +217,16 @@ def histogram_pairs_siblings(
         pairs = _pairs_siblings(roots, xtype, ytype)
         for agg_name, agg_color, agg_fn in agg_list:
             title = f"""
-# histogram of x
-
-tree_to_scores = {fn_txt(tree_to_scores)}
-
-for every tree in source:
-  for every node in tree:
-    for every pair (xnode, ynode) in node.children:
-      if xnode.type in {xtype} and ynode.type in {ytype}:
-        x.append({agg_name}(tree_to_scores(xnode)) - {agg_name}(tree_to_scores(ynode)))"""
+# Histogram of score differences between sibling nodes of types {xtype} and {ytype}.
+Node computed as a {agg_name} over {fn_txt(tree_to_scores)}.
+"""
             for _score_name, getter, ax in _ax6(title, bool(pairs)):
 
                 def stat(t: Tree) -> float:
                     return _tree_to_float(t, tree_to_scores, getter, agg_fn)
 
                 ax.xaxis.set_tick_params(labelsize="x-small")
-                ax.xaxis.set_major_formatter(FormatStrFormatter("%0.0f"))
+                # ax.xaxis.set_major_formatter(FormatStrFormatter("%0.0f"))
                 _hist(
                     ax,
                     [stat(x) - stat(y) for x, y in pairs],
@@ -263,15 +248,9 @@ def histogram_pairs_parent_child(
         pairs = _pairs_parent_child(roots, parenttype, childtype)
         for agg_name, agg_color, agg_fn in agg_list:
             title = f"""
-# histogram of x
-
-tree_to_scores = {fn_txt(tree_to_scores)}
-
-for every tree in source:
-  for every node in tree:
-    for every child_node in node.children:
-      if node.type in {parenttype} and child_node in {childtype}:
-        x.append({agg_name}(tree_to_scores(node)) - {agg_name}(tree_to_scores(child_node)))"""
+## Histogram of score differences between parent node of type {parenttype} and children node of type {ytype}.
+Node computed as a {agg_name} over {fn_txt(tree_to_scores)}.
+"""
             for _score_name, getter, ax in _ax6(title, bool(pairs)):
 
                 def stat(t: Tree) -> float:
@@ -397,3 +376,61 @@ for every tree in source:
         fig.set_figheight(7)
         display.plot(ax)
         plt.show()
+
+def get_siblings_data(
+        node_details: list[tuple[list[TreeTypes], list[TreeTypes],
+                                 Fn[Tree, list[Score]]]],
+        detailed: bool) -> dict[str, list[tuple[str, list[list[float]]]]]:
+    result: dict[str, list[tuple[str, list[list[float]]]]] = {}
+    for i, (roots, _) in enumerate(
+            input_data(False)):  # set detailed to False, always one loop
+        assert i <= 1
+        # print(_score_getters)
+        for score_name, score_getter in _score_getters:
+            one_picture_data = []
+            for agg_name, _, agg_fn in agg_list:
+                single_panel_data = []
+                for xtype, ytype, tree_to_scores in node_details:
+                    single_type_pairs: list[float] = []
+                    pairs = _pairs_siblings(roots, xtype, ytype)
+
+                    def stat(t: Tree) -> float:
+                        return _tree_to_float(t, tree_to_scores, score_getter,
+                                           agg_fn)
+
+                    for x, y in pairs:
+                        single_type_pairs.append(stat(x) - stat(y))
+                    single_panel_data.append(single_type_pairs)
+                one_picture_data.append((agg_name, single_panel_data))
+            result[score_name] = one_picture_data
+    return result
+
+def get_parent_child_data(
+        node_details: list[tuple[list[TreeTypes], list[TreeTypes],
+                                 Fn[Tree, list[Score]]]],
+        detailed: bool) -> dict[str, list[tuple[str, list[list[float]]]]]:
+    result: dict[str, list[tuple[str, list[list[float]]]]] = {}
+    for i, (roots, _) in enumerate(
+            input_data(False)):  # set detailed to False, always one loop
+        assert i < 1
+        # print(_score_getters)
+        for score_name, score_getter in _score_getters:
+            one_picture_data = []
+            for agg_name, _, agg_fn in agg_list:
+                single_panel_data = []
+                for parenttype, childtype, tree_to_scores in node_details:
+                    single_type_pairs: list[float] = []
+
+                    pairs = _pairs_parent_child(roots, parenttype, childtype)
+                    # TODO refactor this, it is practically the same as get_siblings_data
+
+                    def stat(t: Tree) -> float:
+                        return _tree_to_float(t, tree_to_scores, score_getter,
+                                           agg_fn)
+
+                    for x, y in pairs:
+                        single_type_pairs.append(stat(x) - stat(y))
+                    single_panel_data.append(single_type_pairs)
+                one_picture_data.append((agg_name, single_panel_data))
+            result[score_name] = one_picture_data
+    return result
