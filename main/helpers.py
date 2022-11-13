@@ -7,7 +7,7 @@ from shared import CondaApp
 from .score import Score, Smiles
 from .types import AiInput, AiTree, Scoring, Timed
 
-all_scorings: list[Scoring] = ["sa", "sc", "ra", "syba", "mf"]
+all_scorings: list[Scoring] = ["sa", "sc", "ra", "syba"]
 
 
 @asynccontextmanager
@@ -21,10 +21,10 @@ async def app_scorers():
 
         async def g(data: Tuple[str, Optional[int]]):
             s, t = data
-            sa, sc, ra, syba, mf = await asyncio.gather(
-                f("sa", s), f("sc", s), f("ra", s), f("syba", s), f("mf", s)
+            sa, sc, ra, syba = await asyncio.gather(
+                f("sa", s), f("sc", s), f("ra", s), f("syba", s)
             )
-            return Smiles(s, Score(sa=sa, sc=sc, ra=ra, mf=mf, syba=syba), t)
+            return Smiles(s, Score(sa=sa, sc=sc, ra=ra, syba=syba), t)
 
         yield f, g
 

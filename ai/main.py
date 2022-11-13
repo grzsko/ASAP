@@ -19,7 +19,7 @@ aggs: dict[Agg, Fn[list[float], float]] = {"min": min, "max": max, "avg": avg}
 
 class Setup(TypedDict):
     agg: Agg
-    score: Literal["sa", "sc", "ra", "syba", "mf"]
+    score: Literal["sa", "sc", "ra", "syba"]
     uw_multiplier: float
 
 

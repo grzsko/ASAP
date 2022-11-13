@@ -245,7 +245,7 @@ for every tree in source:
                 _hist(
                     ax,
                     [stat(x) - stat(y) for x, y in pairs],
-                    20,  # 16 if score_name == "mf" else 10,
+                    20,
                     agg_color,
                 )
                 # np.linspace(from, to, step)
@@ -282,7 +282,7 @@ for every tree in source:
                 _hist(
                     ax,
                     [stat(x) - stat(y) for x, y in pairs],
-                    40,  # 16 if score_name == "mf" else 10,
+                    40,
                     agg_color,
                 )
 
