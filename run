@@ -10,13 +10,14 @@ module(){ "${py310bin}/python" -m "$@"; }
 f() {
   case "$1" in
     pack)
-      tar cf - data | split -b 99M - data.tz.
+      mkdir -p data_dump
+      tar cf - data | split -b 99m - data_dump/data.tz.
       ;;
     configure)
       f git-submodules
       f create-conda-envs
       # f gunzip
-      cat data.tz.* | tar xf -
+      cat data_dump/data.tz.* | tar xf -
       ;;
     create-conda-envs)
       conda env create -f https://raw.githubusercontent.com/MolecularAI/aizynthfinder/master/env-users.yml
