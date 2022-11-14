@@ -1,5 +1,5 @@
 import json
-from typing import Any, Optional, Tuple, TypeVar
+from typing import Any, Optional, Tuple, TypeVar, Union
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -377,13 +377,15 @@ for every tree in source:
         display.plot(ax)
         plt.show()
 
+
 def get_siblings_data(
-        node_details: list[tuple[list[TreeTypes], list[TreeTypes],
-                                 Fn[Tree, list[Score]]]],
-        detailed: bool) -> dict[str, list[tuple[str, list[list[float]]]]]:
+    node_details: list[tuple[list[TreeTypes], list[TreeTypes], Fn[Tree, list[Score]]]],
+    detailed: bool,
+) -> dict[str, list[tuple[str, list[list[float]]]]]:
     result: dict[str, list[tuple[str, list[list[float]]]]] = {}
     for i, (roots, _) in enumerate(
-            input_data(False)):  # set detailed to False, always one loop
+        input_data(False)
+    ):  # set detailed to False, always one loop
         assert i <= 1
         # print(_score_getters)
         for score_name, score_getter in _score_getters:
@@ -395,8 +397,7 @@ def get_siblings_data(
                     pairs = _pairs_siblings(roots, xtype, ytype)
 
                     def stat(t: Tree) -> float:
-                        return _tree_to_float(t, tree_to_scores, score_getter,
-                                           agg_fn)
+                        return _tree_to_float(t, tree_to_scores, score_getter, agg_fn)
 
                     for x, y in pairs:
                         single_type_pairs.append(stat(x) - stat(y))
@@ -405,13 +406,15 @@ def get_siblings_data(
             result[score_name] = one_picture_data
     return result
 
+
 def get_parent_child_data(
-        node_details: list[tuple[list[TreeTypes], list[TreeTypes],
-                                 Fn[Tree, list[Score]]]],
-        detailed: bool) -> dict[str, list[tuple[str, list[list[float]]]]]:
+    node_details: list[tuple[list[TreeTypes], list[TreeTypes], Fn[Tree, list[Score]]]],
+    detailed: bool,
+) -> dict[str, list[tuple[str, list[list[float]]]]]:
     result: dict[str, list[tuple[str, list[list[float]]]]] = {}
     for i, (roots, _) in enumerate(
-            input_data(False)):  # set detailed to False, always one loop
+        input_data(False)
+    ):  # set detailed to False, always one loop
         assert i < 1
         # print(_score_getters)
         for score_name, score_getter in _score_getters:
@@ -422,11 +425,11 @@ def get_parent_child_data(
                     single_type_pairs: list[float] = []
 
                     pairs = _pairs_parent_child(roots, parenttype, childtype)
-                    # TODO refactor this, it is practically the same as get_siblings_data
+                    # TODO refactor this, it is practically the same as
+                    #  get_siblings_data
 
                     def stat(t: Tree) -> float:
-                        return _tree_to_float(t, tree_to_scores, score_getter,
-                                           agg_fn)
+                        return _tree_to_float(t, tree_to_scores, score_getter, agg_fn)
 
                     for x, y in pairs:
                         single_type_pairs.append(stat(x) - stat(y))
@@ -434,3 +437,39 @@ def get_parent_child_data(
                 one_picture_data.append((agg_name, single_panel_data))
             result[score_name] = one_picture_data
     return result
+
+
+def get_roc_data(
+    ttypes: list[list[TreeTypes]],
+    btypes: list[list[TreeTypes]],
+    tree_to_scores: Fn[Tree, list[Score]],
+    agg_fns: list[AggFn],
+    score_getters: list[Tuple[str, ScoreGetter]],
+    detailed: bool = False,
+):
+    roots, _source = next(input_data(detailed))
+    all_nodes = list(flatten((root.all_nodes() for root in roots)))
+
+    tables: list[list[list[Union[Union[str, float], Any]]]] = []
+    for ttype, btype in zip(ttypes, btypes):
+        table = []
+        for score_name, getter in score_getters:
+            for agg_function in agg_fns:
+                # print(agg_function) # Nonesence but it still claim that it is
+                # a tuple (name, color, function)
+
+                def stat(t: Tree) -> float:
+                    return _tree_to_float(t, tree_to_scores, getter, agg_function[2])
+
+                y = [1 for tree in all_nodes if tree.type in ttype] + [
+                    0 for tree in all_nodes if tree.type in btype
+                ]
+                pred = [stat(tree) for tree in all_nodes if tree.type in ttype] + [
+                    stat(tree) for tree in all_nodes if tree.type in btype
+                ]
+                fpr, tpr, _thresholds = metrics.roc_curve(y, pred)
+                roc_auc = metrics.auc(fpr, tpr)
+                row = [score_name, agg_function[0], roc_auc, (fpr, tpr)]
+                table.append(row)
+        tables.append(table)
+    return tables
