@@ -33,4 +33,7 @@ Generated trees are then deposited in the `results/db.sqlite` file as an SQLite 
 ```sh
 run main ai_postprocess
 ```
-3. Statistical analysis of search trees is available in notebooks: stats, stats_selected, and setups_table, root_scores.
+3. Statistical analysis of search trees is available in notebooks:
+- Siblings and parent-child statistics
+- Discrimination between different kinds of nodes
+- Assessment of retrosynthesis results
