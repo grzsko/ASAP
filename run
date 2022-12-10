@@ -39,7 +39,7 @@ f() {
       gzip -dk results/db.sqlite.gz
       ;;
     pre-commit)
-      for NAME in db scorers; do
+      for NAME in db scores; do
         if [ -f results/$NAME.sqlite ]; then
           gzip -f9k results/$NAME.sqlite
           ls -s1h results/$NAME.sqlite* || :
