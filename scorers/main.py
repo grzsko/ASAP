@@ -40,17 +40,6 @@ def scaler(lowest: float, highest: float) -> Fn[float, float]:
     return lambda value: (truncate(value, l, h) - l) / size
 
 
-def get_mf_scorer() -> SmilesScorer:
-    from .mf_score.mfscore.ocsvm import score_smiles
-
-    def f(smiles: str):
-        # [-inf, inf] -> [-800, 600] -> [-1, 1] -> [-0.5, 0.5] -> [0, 1]
-        value = truncate(score_smiles(smiles), -800.0, 600.0)
-        return (value / 2.0 / (800.0 if value < 0.0 else 600.0)) + 0.5
-
-    return f
-
-
 def get_sc_scorer() -> MolScorer:
     from .scscore_numpy import SCScorer
 
@@ -100,7 +89,6 @@ if __name__ == "__main__":
         "ra": get_ra_scorer("DNN", "chembl"),
         "sa": wrap_to_mol(get_sa_scorer()),
         "sc": wrap_to_mol(get_sc_scorer()),
-        "mf": get_mf_scorer(),
         "syba": wrap_to_mol(get_syba_scorer()),
     }
     smileser = wrap_to_mol(to_smiles)
