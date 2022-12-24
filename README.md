@@ -23,7 +23,7 @@ This command clones the repositories of analyzed scores, creates separate conda 
 For more details, see the `run` file.
 
 ## Usage
-1. Run AiZynthFinder for generating its search trees on the molecules database:
+1. Run AiZynthFinder for generating its search trees on the molecules database (may take a considerable amount of time):
 ```sh
 run main ai
 ```
@@ -37,3 +37,6 @@ run main ai_postprocess
 - Siblings and parent-child statistics
 - Discrimination between different kinds of nodes
 - Assessment of retrosynthesis results
+
+## Adding own synthetic score
+This benchmarking project aims to be a tool for gauge and compare novel synthesizability scores. Detailed instructions how to add a new synthetic accessibility score is describd in a [separate file](ADDING.md).
