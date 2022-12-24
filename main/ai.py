@@ -9,7 +9,7 @@ zero_setup: Setup = {
     "agg": "max",
 }
 
-# 5 * 3 * 3 + 1 = 46 setups per molecule
+# (5 scores) * (3 aggs) * (3 multipliers) + (1 zero setup) = 46 setups per molecule
 ai_setups: list[Setup] = [
     zero_setup,
     *[
@@ -18,7 +18,7 @@ ai_setups: list[Setup] = [
             "uw_multiplier": uw_multiplier,
             "agg": agg,
         }
-        for score in ("sa", "sc", "ra", "syba")
+        for score in ("sa", "sc", "ra", "syba", "foo")
         for uw_multiplier in (0.2375, 0.475, 0.7125)  # 0.95/4 * 1, *2, *3,
         for agg in ("min", "max", "avg")
     ],

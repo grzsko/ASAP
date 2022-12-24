@@ -94,6 +94,10 @@ def get_sa_scorer() -> MolScorer:
     f = inverted(scaler(1, 10))
     return lambda mol: f(sascorer.calculateScore(mol))
 
+def get_foo_scorer() -> SmilesScorer:
+    import random
+    return lambda smiles: random.random()
+
 
 if __name__ == "__main__":
     scorers: Dict[str, SmilesScorer] = {
@@ -102,6 +106,7 @@ if __name__ == "__main__":
         "sc": wrap_to_mol(get_sc_scorer()),
         "mf": get_mf_scorer(),
         "syba": wrap_to_mol(get_syba_scorer()),
+        "foo": get_foo_scorer(),
     }
     smileser = wrap_to_mol(to_smiles)
     with Db("scores", False) as db:

@@ -2,7 +2,7 @@ from typing import Literal, Optional, TypedDict, TypeVar
 
 T = TypeVar("T")
 Timed = tuple[float, T]
-Scoring = Literal["sa", "sc", "ra", "syba", "mf"]
+Scoring = Literal["sa", "sc", "ra", "syba", "foo"]
 
 
 class AiTree(TypedDict):
