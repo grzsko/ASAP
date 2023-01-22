@@ -1,7 +1,7 @@
 # `ASAP` - Critical `A`ssessment of `S`ynthetic `A`ccessibility scores in computer-assisted synthesis `P`lanning
 
-This repository contains the source code for reproducing the results from the article (currently a preprint):
-> Skoraczyński G, Kitlas M, Miasojedow B, Gambin A. Critical assessment of synthetic accessibility scores in computer-assisted synthesis planning. ChemRxiv. Cambridge: Cambridge Open Engage; 2022; https://doi.org/10.26434/chemrxiv-2022-q1rqv
+This repository contains the source code for reproducing the results from the article:
+> Skoraczyński, G., Kitlas, M., Miasojedow, B., Gambin A. Critical assessment of synthetic accessibility scores in computer-assisted synthesis planning. *J Cheminform* **15**, 6 (2023). https://doi.org/10.1186/s13321-023-00678-z
 
 ## What is ASAP?
 > We assess if synthetic accessibility scores can reliably predict the outcomes of retrosynthesis planning.
