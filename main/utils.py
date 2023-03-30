@@ -1,4 +1,3 @@
-import inspect
 from typing import Any, Callable, Iterable, Optional, TypedDict, TypeVar, Union
 
 T = TypeVar("T")

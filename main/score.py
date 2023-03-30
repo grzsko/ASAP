@@ -9,18 +9,19 @@ JsonScore = dict[Scoring, float]
 
 
 class Score:
-    def __init__(self, sa: float, sc: float, ra: float, syba: float):
+    def __init__(self, sa: float, sc: float, ra: float, syba: float, foo: float):
         self.sa = sa
         self.sc = sc
         self.ra = ra
         self.syba = syba
+        self.foo = foo
 
     def __str__(self):
         return serialize_dict(self.json(), ",")
 
     @staticmethod
     def from_json(j: JsonScore):
-        return Score(sa=j["sa"], sc=j["sc"], ra=j["ra"], syba=j["syba"])
+        return Score(sa=j["sa"], sc=j["sc"], ra=j["ra"], syba=j["syba"], foo=j["foo"])
 
     @staticmethod
     def getters() -> list[Tuple[Scoring, Fn["Score", float]]]:
@@ -29,6 +30,7 @@ class Score:
             ("sc", lambda s: s.sc),
             ("ra", lambda s: s.ra),
             ("syba", lambda s: s.syba),
+            ("foo", lambda s: s.foo),
         ]
 
     def json(self) -> JsonScore:
@@ -37,6 +39,7 @@ class Score:
             "sc": self.sc,
             "ra": self.ra,
             "syba": self.syba,
+            "foo": self.foo,
         }
 
 

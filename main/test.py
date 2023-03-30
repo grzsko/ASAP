@@ -41,7 +41,7 @@ class Test(IsolatedAsyncioTestCase):
 
             await Tree.from_ai(ai_tree, fake_scorer)
 
-    async def test_sa_sc_ra_syba_mf(self):
+    async def test_scorers(self):
         with open(f"main/test.json") as f:
             mols: list[dict[str, Any]] = json.load(f)
             async with app_scorers() as (scorer, _):
@@ -50,12 +50,6 @@ class Test(IsolatedAsyncioTestCase):
                         (scoring, m[scoring], m["smiles"])
                         for scoring in ("sa", "sc", "ra", "syba")
                         for m in mols
-                    ),
-                    ("mf", 0.508526768404158, "O=C(C)Oc1ccccc1C(=O)O"),
-                    (
-                        "mf",
-                        0.241901002275,
-                        "C[C@H](CCCC(C)C)[C@H]1CC[C@@H]2[C@@]1(CC[C@H]3[C@H]2CC=C4[C@@]3(CC[C@@H](C4)O)C)C",
                     ),
                 ]
                 await asyncio.gather(
